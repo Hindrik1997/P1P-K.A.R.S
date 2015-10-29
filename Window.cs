@@ -4,6 +4,7 @@ using System.Windows.Forms;
 using System.Collections.Generic;
 using RaceGame.Delegates;
 using System.Drawing.Drawing2D;
+using System.Diagnostics;
 
 namespace RaceGame
 {
@@ -13,8 +14,6 @@ namespace RaceGame
         public Bitmap BackBuffer;
         public List<GameTask> GameTasks;
         public List<DrawInfo> DrawInfos;
-        private TextBox textBox1;
-        private TextBox textBox2;
         private RadioButton Tank2;
         private RadioButton Jackass2;
         private RadioButton LAPV2;
@@ -29,8 +28,6 @@ namespace RaceGame
         private Panel panel1;
         private Button startgame;
         private NumericUpDown numericUpDown1;
-        private TextBox Laps;
-        private TextBox Title;
         private Label label1;
         private Label label2;
         private Label label3;
@@ -58,6 +55,12 @@ namespace RaceGame
         public bool disableInput = true;
         public int TotalLaps = 5;
         Enums.VehicleType player1Vehicle;
+        public Button button1;
+        private Label label7;
+        private Label label9;
+        private Label label11;
+        private Label label12;
+        private Panel panel3;
         Enums.VehicleType player2Vehicle;
 
         /// <summary>
@@ -74,12 +77,17 @@ namespace RaceGame
 
             SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.DoubleBuffer, true);
             GameTimer = new Timer();
-            GameTimer.Interval = 10;
+            GameTimer.Interval = 16;
             GameTimer.Tick += new EventHandler(GameTimer_Tick);
             GameTimer.Start();
             Load += new EventHandler(CreateBackBuffer);
             Paint += new PaintEventHandler(PaintBackbuffer);
             toggleVisibility();
+            if (Base.drawInfos == null || Base.drawInfos.Count != 0)
+            {
+                Base.drawInfos = new List<DrawInfo>();
+            }
+            Base.drawInfos.Add(new DrawInfo(Bitmaps.Other.Background, 1008 / 2, 792 / 2, 1008, 792, -90));
         }
 
         /// <summary>
@@ -89,14 +97,12 @@ namespace RaceGame
         {
             if (showMenu)
             {
-                this.textBox1.Visible = true;
-                this.textBox2.Visible = true;
+                this.label12.Visible = true;
+                this.panel3.Visible = true;
                 this.panel2.Visible = true;
                 this.panel1.Visible = true;
                 this.startgame.Visible = true;
                 this.numericUpDown1.Visible = true;
-                this.Laps.Visible = true;
-                this.Title.Visible = true;
                 this.label1.Visible = false;
                 this.label2.Visible = false;
                 this.label3.Visible = false;
@@ -122,14 +128,12 @@ namespace RaceGame
     }
             else
             {
-                this.textBox1.Visible = false;
-                this.textBox2.Visible = false;
+                this.label12.Visible = false;
+                this.panel3.Visible = false;
                 this.panel2.Visible = false;
                 this.panel1.Visible = false;
                 this.startgame.Visible = false;
                 this.numericUpDown1.Visible = false;
-                this.Laps.Visible = false;
-                this.Title.Visible = false;
                 this.label1.Visible = true;
                 this.label2.Visible = true;
                 this.label3.Visible = true;
@@ -160,8 +164,7 @@ namespace RaceGame
         /// </summary>
         private void InitializeComponent()
         {
-            this.textBox1 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Window));
             this.Tank2 = new System.Windows.Forms.RadioButton();
             this.Jackass2 = new System.Windows.Forms.RadioButton();
             this.LAPV2 = new System.Windows.Forms.RadioButton();
@@ -176,8 +179,6 @@ namespace RaceGame
             this.panel1 = new System.Windows.Forms.Panel();
             this.startgame = new System.Windows.Forms.Button();
             this.numericUpDown1 = new System.Windows.Forms.NumericUpDown();
-            this.Laps = new System.Windows.Forms.TextBox();
-            this.Title = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
@@ -200,33 +201,23 @@ namespace RaceGame
             this.Player2Fuel = new System.Windows.Forms.ProgressBar();
             this.Player2Health = new System.Windows.Forms.ProgressBar();
             this.Player2Speed = new System.Windows.Forms.ProgressBar();
+            this.button1 = new System.Windows.Forms.Button();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label11 = new System.Windows.Forms.Label();
+            this.label12 = new System.Windows.Forms.Label();
+            this.panel3 = new System.Windows.Forms.Panel();
             this.panel2.SuspendLayout();
             this.panel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).BeginInit();
+            this.panel3.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // textBox1
-            // 
-            this.textBox1.Enabled = false;
-            this.textBox1.Location = new System.Drawing.Point(101, 111);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(100, 20);
-            this.textBox1.TabIndex = 0;
-            this.textBox1.Text = "Player 1";
-            // 
-            // textBox2
-            // 
-            this.textBox2.Enabled = false;
-            this.textBox2.Location = new System.Drawing.Point(759, 111);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(100, 20);
-            this.textBox2.TabIndex = 1;
-            this.textBox2.Text = "Player 2";
             // 
             // Tank2
             // 
             this.Tank2.AutoSize = true;
             this.Tank2.Checked = true;
+            this.Tank2.ForeColor = System.Drawing.Color.White;
             this.Tank2.Location = new System.Drawing.Point(10, 10);
             this.Tank2.Name = "Tank2";
             this.Tank2.Size = new System.Drawing.Size(50, 17);
@@ -239,17 +230,19 @@ namespace RaceGame
             // Jackass2
             // 
             this.Jackass2.AutoSize = true;
+            this.Jackass2.ForeColor = System.Drawing.Color.White;
             this.Jackass2.Location = new System.Drawing.Point(10, 33);
             this.Jackass2.Name = "Jackass2";
-            this.Jackass2.Size = new System.Drawing.Size(64, 17);
+            this.Jackass2.Size = new System.Drawing.Size(91, 17);
             this.Jackass2.TabIndex = 4;
-            this.Jackass2.Text = "Jackass";
+            this.Jackass2.Text = "Shopping cart";
             this.Jackass2.UseVisualStyleBackColor = true;
             this.Jackass2.CheckedChanged += new System.EventHandler(this.Jackass2_CheckedChanged);
             // 
             // LAPV2
             // 
             this.LAPV2.AutoSize = true;
+            this.LAPV2.ForeColor = System.Drawing.Color.White;
             this.LAPV2.Location = new System.Drawing.Point(10, 56);
             this.LAPV2.Name = "LAPV2";
             this.LAPV2.Size = new System.Drawing.Size(52, 17);
@@ -261,6 +254,7 @@ namespace RaceGame
             // Horsepower2
             // 
             this.Horsepower2.AutoSize = true;
+            this.Horsepower2.ForeColor = System.Drawing.Color.White;
             this.Horsepower2.Location = new System.Drawing.Point(10, 79);
             this.Horsepower2.Name = "Horsepower2";
             this.Horsepower2.Size = new System.Drawing.Size(82, 17);
@@ -272,6 +266,7 @@ namespace RaceGame
             // Motorfiets2
             // 
             this.Motorfiets2.AutoSize = true;
+            this.Motorfiets2.ForeColor = System.Drawing.Color.White;
             this.Motorfiets2.Location = new System.Drawing.Point(10, 102);
             this.Motorfiets2.Name = "Motorfiets2";
             this.Motorfiets2.Size = new System.Drawing.Size(71, 17);
@@ -283,6 +278,7 @@ namespace RaceGame
             // Motorfiets1
             // 
             this.Motorfiets1.AutoSize = true;
+            this.Motorfiets1.ForeColor = System.Drawing.Color.White;
             this.Motorfiets1.Location = new System.Drawing.Point(10, 102);
             this.Motorfiets1.Name = "Motorfiets1";
             this.Motorfiets1.Size = new System.Drawing.Size(71, 17);
@@ -294,6 +290,7 @@ namespace RaceGame
             // Horsepower1
             // 
             this.Horsepower1.AutoSize = true;
+            this.Horsepower1.ForeColor = System.Drawing.Color.White;
             this.Horsepower1.Location = new System.Drawing.Point(10, 79);
             this.Horsepower1.Name = "Horsepower1";
             this.Horsepower1.Size = new System.Drawing.Size(82, 17);
@@ -305,6 +302,7 @@ namespace RaceGame
             // LAPV1
             // 
             this.LAPV1.AutoSize = true;
+            this.LAPV1.ForeColor = System.Drawing.Color.White;
             this.LAPV1.Location = new System.Drawing.Point(10, 56);
             this.LAPV1.Name = "LAPV1";
             this.LAPV1.Size = new System.Drawing.Size(52, 17);
@@ -316,11 +314,12 @@ namespace RaceGame
             // Jackass1
             // 
             this.Jackass1.AutoSize = true;
+            this.Jackass1.ForeColor = System.Drawing.Color.White;
             this.Jackass1.Location = new System.Drawing.Point(10, 33);
             this.Jackass1.Name = "Jackass1";
-            this.Jackass1.Size = new System.Drawing.Size(64, 17);
+            this.Jackass1.Size = new System.Drawing.Size(91, 17);
             this.Jackass1.TabIndex = 9;
-            this.Jackass1.Text = "Jackass";
+            this.Jackass1.Text = "Shopping cart";
             this.Jackass1.UseVisualStyleBackColor = true;
             this.Jackass1.CheckedChanged += new System.EventHandler(this.Jackass1_CheckedChanged);
             // 
@@ -328,6 +327,7 @@ namespace RaceGame
             // 
             this.Tank1.AutoSize = true;
             this.Tank1.Checked = true;
+            this.Tank1.ForeColor = System.Drawing.Color.White;
             this.Tank1.Location = new System.Drawing.Point(10, 10);
             this.Tank1.Name = "Tank1";
             this.Tank1.Size = new System.Drawing.Size(50, 17);
@@ -344,7 +344,7 @@ namespace RaceGame
             this.panel2.Controls.Add(this.Jackass2);
             this.panel2.Controls.Add(this.Horsepower2);
             this.panel2.Controls.Add(this.Motorfiets2);
-            this.panel2.Location = new System.Drawing.Point(759, 162);
+            this.panel2.Location = new System.Drawing.Point(409, 26);
             this.panel2.Name = "panel2";
             this.panel2.Padding = new System.Windows.Forms.Padding(10);
             this.panel2.Size = new System.Drawing.Size(100, 133);
@@ -357,7 +357,7 @@ namespace RaceGame
             this.panel1.Controls.Add(this.Motorfiets1);
             this.panel1.Controls.Add(this.LAPV1);
             this.panel1.Controls.Add(this.Horsepower1);
-            this.panel1.Location = new System.Drawing.Point(101, 162);
+            this.panel1.Location = new System.Drawing.Point(8, 26);
             this.panel1.Name = "panel1";
             this.panel1.Padding = new System.Windows.Forms.Padding(10);
             this.panel1.Size = new System.Drawing.Size(100, 133);
@@ -365,7 +365,7 @@ namespace RaceGame
             // 
             // startgame
             // 
-            this.startgame.Location = new System.Drawing.Point(350, 476);
+            this.startgame.Location = new System.Drawing.Point(114, 45);
             this.startgame.Name = "startgame";
             this.startgame.Size = new System.Drawing.Size(289, 114);
             this.startgame.TabIndex = 15;
@@ -375,7 +375,7 @@ namespace RaceGame
             // 
             // numericUpDown1
             // 
-            this.numericUpDown1.Location = new System.Drawing.Point(468, 422);
+            this.numericUpDown1.Location = new System.Drawing.Point(266, 8);
             this.numericUpDown1.Maximum = new decimal(new int[] {
             10,
             0,
@@ -395,25 +395,6 @@ namespace RaceGame
             0,
             0});
             this.numericUpDown1.ValueChanged += new System.EventHandler(this.numericUpDown1_ValueChanged);
-            // 
-            // Laps
-            // 
-            this.Laps.Enabled = false;
-            this.Laps.Location = new System.Drawing.Point(468, 396);
-            this.Laps.Name = "Laps";
-            this.Laps.Size = new System.Drawing.Size(43, 20);
-            this.Laps.TabIndex = 17;
-            this.Laps.Text = "Laps";
-            // 
-            // Title
-            // 
-            this.Title.Enabled = false;
-            this.Title.Font = new System.Drawing.Font("Microsoft Sans Serif", 50F);
-            this.Title.Location = new System.Drawing.Point(418, 143);
-            this.Title.Name = "Title";
-            this.Title.Size = new System.Drawing.Size(151, 83);
-            this.Title.TabIndex = 18;
-            this.Title.Text = "Kars";
             // 
             // label1
             // 
@@ -660,17 +641,80 @@ namespace RaceGame
             this.Player2Speed.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.Player2Speed.TabIndex = 28;
             // 
+            // button1
+            // 
+            this.button1.Location = new System.Drawing.Point(12, 12);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 70);
+            this.button1.TabIndex = 29;
+            this.button1.Text = "Back to main menu";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Visible = false;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.ForeColor = System.Drawing.Color.Snow;
+            this.label7.Location = new System.Drawing.Point(183, 10);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(77, 13);
+            this.label7.TabIndex = 30;
+            this.label7.Text = "Amount of laps";
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.ForeColor = System.Drawing.Color.White;
+            this.label9.Location = new System.Drawing.Point(15, 8);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(85, 13);
+            this.label9.TabIndex = 31;
+            this.label9.Text = "Vehicle player 1:";
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.ForeColor = System.Drawing.Color.White;
+            this.label11.Location = new System.Drawing.Point(416, 8);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(85, 13);
+            this.label11.TabIndex = 32;
+            this.label11.Text = "Vehicle player 2:";
+            // 
+            // label12
+            // 
+            this.label12.AutoSize = true;
+            this.label12.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.label12.Font = new System.Drawing.Font("Microsoft Sans Serif", 40F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label12.ForeColor = System.Drawing.Color.Snow;
+            this.label12.Location = new System.Drawing.Point(396, 498);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(219, 63);
+            this.label12.TabIndex = 33;
+            this.label12.Text = "K.A.R.S";
+            // 
+            // panel3
+            // 
+            this.panel3.BackColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.panel3.Controls.Add(this.startgame);
+            this.panel3.Controls.Add(this.panel2);
+            this.panel3.Controls.Add(this.label11);
+            this.panel3.Controls.Add(this.panel1);
+            this.panel3.Controls.Add(this.label9);
+            this.panel3.Controls.Add(this.numericUpDown1);
+            this.panel3.Controls.Add(this.label7);
+            this.panel3.Location = new System.Drawing.Point(253, 564);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(515, 181);
+            this.panel3.TabIndex = 34;
+            // 
             // Window
             // 
             this.ClientSize = new System.Drawing.Size(1008, 747);
-            this.Controls.Add(this.Title);
-            this.Controls.Add(this.Laps);
-            this.Controls.Add(this.numericUpDown1);
-            this.Controls.Add(this.startgame);
-            this.Controls.Add(this.panel1);
-            this.Controls.Add(this.panel2);
-            this.Controls.Add(this.textBox2);
-            this.Controls.Add(this.textBox1);
+            this.Controls.Add(this.panel3);
+            this.Controls.Add(this.label12);
+            this.Controls.Add(this.button1);
             this.Controls.Add(this.Player2Speed);
             this.Controls.Add(this.Player2Health);
             this.Controls.Add(this.Player2Fuel);
@@ -693,6 +737,7 @@ namespace RaceGame
             this.Controls.Add(this.label3);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.MaximumSize = new System.Drawing.Size(1024, 786);
@@ -700,12 +745,14 @@ namespace RaceGame
             this.MinimumSize = new System.Drawing.Size(1024, 786);
             this.Name = "Window";
             this.ShowIcon = false;
-            this.Text = "Race Game";
+            this.Text = "K.A.R.S";
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numericUpDown1)).EndInit();
+            this.panel3.ResumeLayout(false);
+            this.panel3.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -831,7 +878,14 @@ namespace RaceGame
                         break;
                     case Keys.D2:
                         if (Base.currentGame.player1.vehicle.weapon != null)
+                        {
                             Base.currentGame.player1.vehicle.shooting = true;
+                            if (Base.currentGame.player1.vehicleType == Enums.VehicleType.HorsePower && Base.currentGame.player1.SpecBool == false && Base.currentGame.player1.vehicle.weapon.weaponReloading == 0)
+                            {
+                                AudioFiles.Flame.PlayLooping();
+                                Base.currentGame.player1.SpecBool = true;
+                            }
+                        }
                         break;
 
 
@@ -859,7 +913,14 @@ namespace RaceGame
                         break;
                     case Keys.Divide:
                         if (Base.currentGame.player2.vehicle.weapon != null)
+                        {
                             Base.currentGame.player2.vehicle.shooting = true;
+                            if (Base.currentGame.player2.vehicleType == Enums.VehicleType.HorsePower && Base.currentGame.player2.SpecBool == false && Base.currentGame.player2.vehicle.weapon.weaponReloading == 0)
+                            {
+                                AudioFiles.Flame.PlayLooping();
+                                Base.currentGame.player2.SpecBool = true;
+                            }
+                        }
                         break;
                 }
             }
@@ -897,7 +958,14 @@ namespace RaceGame
                         break;
                     case Keys.D2:
                         if (Base.currentGame.player1.vehicle.weapon != null)
+                        {
                             Base.currentGame.player1.vehicle.shooting = false;
+                            if (Base.currentGame.player1.vehicleType == Enums.VehicleType.HorsePower)
+                            {
+                                AudioFiles.Flame.Stop();
+                                Base.currentGame.player1.SpecBool = false;
+                            }
+                        }
                         break;
 
 
@@ -917,7 +985,14 @@ namespace RaceGame
 
                     case Keys.NumPad7:
                         if (Base.currentGame.player2.vehicle.weapon != null)
+                        {
                             Base.currentGame.player2.vehicle.weapon.turning = "false";
+                            if (Base.currentGame.player2.vehicleType == Enums.VehicleType.HorsePower)
+                            {
+                                AudioFiles.Flame.Stop();
+                                Base.currentGame.player2.SpecBool = false;
+                            }
+                        }
                         break;
                     case Keys.NumPad9:
                         if (Base.currentGame.player2.vehicle.weapon != null)
@@ -991,6 +1066,7 @@ namespace RaceGame
         /// </summary>
         private void startgame_Click(object sender, EventArgs e)
         {
+            AudioFiles.Motor.Play();
             showMenu = false;
             disableInput = false;
             toggleVisibility();
@@ -1014,6 +1090,14 @@ namespace RaceGame
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
         {
             TotalLaps = (int)(numericUpDown1.Value);
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            button1.Visible = false;
+            showMenu = true;
+            toggleVisibility();
+            Base.drawInfos.Add(new DrawInfo(Bitmaps.Other.Background, 1008/2, 792/ 2, 1008, 792, -90));
         }
     }
 }

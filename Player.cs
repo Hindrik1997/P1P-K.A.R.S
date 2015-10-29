@@ -14,6 +14,7 @@ namespace RaceGame
         public Vehicle vehicle;
         public VehicleType vehicleType;
         public int LapCounter = 0;
+        public bool SpecBool = false;
 
         /// <summary>
         /// Constructor om een speler te creëeren

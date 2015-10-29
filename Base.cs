@@ -1,5 +1,4 @@
 ﻿using System.Windows.Forms;
-using RaceGame.Classes;
 using RaceGame.Delegates;
 using System.Collections.Generic;
 using System;
@@ -17,9 +16,9 @@ namespace RaceGame
         public static List<GameTask> gameTasks;
         public static List<DrawInfo> drawInfos;
 
-        [STAThread]
         public static void Main(string[] Args)
         {
+            AudioFiles.loadSounds();
             Application.EnableVisualStyles();
             windowHandle = new Window();
             Application.Run(windowHandle);

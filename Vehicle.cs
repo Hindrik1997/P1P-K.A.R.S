@@ -1,6 +1,7 @@
 ﻿using RaceGame.Enums;
 using System.Drawing;
 using System;
+using System.Media;
 
 namespace RaceGame
 {
@@ -37,6 +38,8 @@ namespace RaceGame
         public int pitstopCounter = 0;
         public int vehicleSizeX;
         public int vehicleSizeY;
+        public SoundPlayer engineSound;
+        public bool playEngineSoundBool = false;
 
         public PointF topleft;
         public PointF topright;
@@ -114,6 +117,7 @@ namespace RaceGame
         /// </summary>
         public virtual void MoveVehicle()
         {
+            Random RND = new Random();
             if (throttle)
             {
                 fuel -= 0.04f;
@@ -262,8 +266,6 @@ namespace RaceGame
                 }
             }
 
-            //Console.WriteLine(speed);
-
             if (turning == "right")
             {
                 if (vehicletype != VehicleType.Tank)
@@ -401,6 +403,7 @@ namespace RaceGame
 
             if (CanMove)
             {
+                AudioFiles.IsCrashing = false;
                 if (NextX > 0 && NextX < Base.currentGame.MapsizeX && NextY > 0 && NextY < Base.currentGame.MapsizeY)
                 {
                     drawInfo.x += (float)(Math.Cos(drawInfo.angle * (Math.PI / 180)) * speed);
@@ -411,8 +414,14 @@ namespace RaceGame
             {
                 speed = 0f;
                 i = 0;
+                if (AudioFiles.IsCrashing != true)
+                {
+                    if (RND.Next(0, 2) == 0)
+                        AudioFiles.AdvancedCrash.Play();
+                    else
+                        AudioFiles.SimpleCrash.Play();
+                }
             }
-
             weaponDrawInfo.x = drawInfo.x;
             weaponDrawInfo.y = drawInfo.y;
 
@@ -447,6 +456,7 @@ namespace RaceGame
         /// </summary>
         public void CheckCollision()
         {
+            Random RND = new Random();
             float width = 20;
             float length = 32;
             float temgle = (float)(drawInfo.angle - (Math.Atan(((width / 2) / (length / 2))) * (180 / Math.PI)));
@@ -478,6 +488,13 @@ namespace RaceGame
                     speed = 0;
                     i = 0;
                     throttle = false;
+                    if (AudioFiles.IsCrashing != true)
+                    {
+                        if (RND.Next(0, 2) == 0)
+                            AudioFiles.AdvancedCrash.Play();
+                        else
+                            AudioFiles.SimpleCrash.Play();
+                    }
                 }
             }
 
@@ -492,6 +509,13 @@ namespace RaceGame
                     speed = 0;
                     i = 0;
                     throttle = false;
+                    if (AudioFiles.IsCrashing != true)
+                    {
+                        if (RND.Next(0, 2) == 0)
+                            AudioFiles.AdvancedCrash.Play();
+                        else
+                            AudioFiles.SimpleCrash.Play();
+                    }
                 }
             }
         }

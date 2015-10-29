@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Media;
 
 namespace RaceGame
 {
@@ -43,8 +44,6 @@ namespace RaceGame
                     {
                         Base.currentGame.player2.vehicle.health = 0;
                     }
-                    Console.WriteLine("damage gedaan: "+damage);
-                    Console.WriteLine("helf remain iz: " + Base.currentGame.player2.vehicle.health);
                     timeout = 0;
 
 
@@ -62,7 +61,6 @@ namespace RaceGame
                     {
                         Base.currentGame.player1.vehicle.health = 0;
                     }
-                    Console.WriteLine(Base.currentGame.player1.vehicle.health);
                     timeout = 0;
                 }
             }
@@ -105,6 +103,7 @@ namespace RaceGame
         public Bitmap BulletSprite;
         public int weaponSizeX = 50;
         public int weaponSizeY = 100;
+        public SoundPlayer soundPlayer = AudioFiles.Gunshot1;
 
         public static List<Bullet> Bullets = new List<Bullet>();
         public static int i;
@@ -121,6 +120,7 @@ namespace RaceGame
         {
             if (weaponReloading == 0)
             {
+                soundPlayer.Play();
                 Bullets.Add(new Bullet(BulletSprite, (int)player.vehicle.drawInfo.x, (int)player.vehicle.drawInfo.y, 10, 10, player.vehicle.weaponDrawInfo.angle, 0f, 0f, true, timeout));
                 i = Bullets.Count - 1;
                 Bullets[i].speed = 30;
@@ -155,6 +155,7 @@ namespace RaceGame
             turnSpeed = 3f;
             turning = "false";
             BulletSprite = Bitmaps.Bullets.RoundBullet;
+            soundPlayer = AudioFiles.TankShot;
         }
     }
 
@@ -169,6 +170,7 @@ namespace RaceGame
             BulletSprite = Bitmaps.Bullets.RegularBullet;
             weaponSizeX = weaponSprite.Width * 2;
             weaponSizeY = weaponSprite.Height * 2;
+            soundPlayer = AudioFiles.MGSound;
         }
     }
 
@@ -181,6 +183,7 @@ namespace RaceGame
             turnSpeed = 3;
             timeout = 4;
             weaponSprite = Bitmaps.Bullets.Vlam;
+            soundPlayer = AudioFiles.Flame;
         }
 
         public override void shoot()
@@ -206,9 +209,12 @@ namespace RaceGame
         {
             weaponSprite = Bitmaps.Vehicles.MotorfietsWeapon;
             damage = 3;
-            fireRate = 20;
+            fireRate = 13;
             turnSpeed = 4;
-            weaponSprite = Bitmaps.Bullets.RoundBullet;
+            weaponSizeX = Convert.ToInt32(weaponSprite.Width * 1.5f);
+            weaponSizeY = Convert.ToInt32(weaponSprite.Height * 1.5f);
+            soundPlayer = AudioFiles.Gunshot2;
+            BulletSprite = Bitmaps.Bullets.RegularBullet;
         }
     }
 }

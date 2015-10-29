@@ -76,6 +76,8 @@ namespace RaceGame
 
             public static Bitmap p1Win = new Bitmap("FINISH CUP P1.png");
             public static Bitmap p2Win = new Bitmap("FINISH CUP P2.png");
+
+            public static Bitmap Background = new Bitmap("background.jpg");
         }
 
         public static class Obstacles

@@ -60,11 +60,6 @@ namespace RaceGame
             Base.gameTasks.Add(WinCheck);
         }
 
-        public void Escape()
-        {
-            Console.WriteLine("Pressed escape!");
-        }
-
         public void CreatePlayers(Enums.VehicleType player1Vehicle, Enums.VehicleType player2Vehicle)
         {
             player1 = null;
@@ -514,6 +509,22 @@ namespace RaceGame
 
                 if (forceCheck || ValuesChanged)
                 {
+                    Random R = new Random();
+                    switch (R.Next(0, 200))
+                    {
+                        case 0:
+                            AudioFiles.Horn1.Play();
+                            break;
+                        case 1:
+                            AudioFiles.Horn2.Play();
+                            break;
+                        case 2:
+                            AudioFiles.Horn3.Play();
+                            break;
+                        default:
+                            break;
+                    }
+
                     for (int x = 0; x < 32; ++x)
                     {
                         for (int y = 0; y < 32; ++y)
@@ -656,7 +667,7 @@ namespace RaceGame
                     Base.currentGame.player2.vehicle.drawInfo.x = Base.currentGame.CheckPoints[Base.currentGame.LastCheckPointP2].x * 72 + 36;
                     Base.currentGame.player2.vehicle.drawInfo.y = Base.currentGame.CheckPoints[Base.currentGame.LastCheckPointP2].y * 72 + 36;
                 }
-                Base.currentGame.player2.vehicle.health = Base.currentGame.player1.vehicle.maxHealth;
+                Base.currentGame.player2.vehicle.health = Base.currentGame.player2.vehicle.maxHealth;
             }
         }
 
@@ -665,27 +676,31 @@ namespace RaceGame
             if (player1.vehicle.fuel == 0 || player2.LapCounter == Base.windowHandle.TotalLaps)
             {
                 //Player2 wins
+                Base.gameTasks.Remove(WinCheck);
                 Base.drawInfos.Add(new DrawInfo(Bitmaps.Other.p2Win, Bitmaps.Other.p1Win.Width / 2, Bitmaps.Other.p1Win.Height / 2, Bitmaps.Other.p1Win.Width, Bitmaps.Other.p1Win.Height, -90));
                 Base.windowHandle.disableInput = true;
+                Base.windowHandle.button1.Visible = true;
                 Base.currentGame.player1.vehicle.throttle = false;
                 Base.currentGame.player1.vehicle.speed = 0;
                 Base.currentGame.player2.vehicle.throttle = false;
                 Base.currentGame.player2.vehicle.speed = 0;
+                AudioFiles.Win.Play();
             }
 
             if (player2.vehicle.fuel == 0 || player1.LapCounter == Base.windowHandle.TotalLaps)
             {
                 //Player1 wins
+                Base.gameTasks.Remove(WinCheck);
                 Base.drawInfos.Add(new DrawInfo(Bitmaps.Other.p1Win, Bitmaps.Other.p2Win.Width / 2, Bitmaps.Other.p2Win.Height / 2, Bitmaps.Other.p2Win.Width, Bitmaps.Other.p2Win.Height, -90));
                 Base.windowHandle.disableInput = true;
+                Base.windowHandle.button1.Visible = true;
                 Base.currentGame.player1.vehicle.throttle = false;
                 Base.currentGame.player1.vehicle.speed = 0;
                 Base.currentGame.player2.vehicle.throttle = false;
                 Base.currentGame.player2.vehicle.speed = 0;
+                AudioFiles.Win.Play();
             }
 
         }
-
-
     }
 }

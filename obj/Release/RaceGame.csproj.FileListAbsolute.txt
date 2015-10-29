@@ -1,0 +1,8 @@
+C:\Users\Hindrik\Documents\GitHub\VisualStudio\RaceGame\RacegameInformaticaNHL\bin\Release\KARS.exe.config
+C:\Users\Hindrik\Documents\GitHub\VisualStudio\RaceGame\RacegameInformaticaNHL\bin\Release\KARS.exe
+C:\Users\Hindrik\Documents\GitHub\VisualStudio\RaceGame\RacegameInformaticaNHL\bin\Release\KARS.pdb
+C:\Users\Hindrik\Documents\GitHub\VisualStudio\RaceGame\RacegameInformaticaNHL\obj\Release\RaceGame.Properties.Resources.resources
+C:\Users\Hindrik\Documents\GitHub\VisualStudio\RaceGame\RacegameInformaticaNHL\obj\Release\RaceGame.Window.resources
+C:\Users\Hindrik\Documents\GitHub\VisualStudio\RaceGame\RacegameInformaticaNHL\obj\Release\RaceGame.csproj.GenerateResource.Cache
+C:\Users\Hindrik\Documents\GitHub\VisualStudio\RaceGame\RacegameInformaticaNHL\obj\Release\KARS.exe
+C:\Users\Hindrik\Documents\GitHub\VisualStudio\RaceGame\RacegameInformaticaNHL\obj\Release\KARS.pdb

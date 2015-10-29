@@ -10,6 +10,8 @@ namespace RaceGame
         int PosX = Base.currentGame.PitStopPoint.x;
         int PosY = Base.currentGame.PitStopPoint.y;
         int Range = 36;
+        bool PitstopPlays = false;
+        int timeout = 0;
 
         /// <summary>
         /// Dit is de constructor van de pitstop class. Hierin wordt de checkpitstop() method toegevoegd aan de gameloop
@@ -25,9 +27,18 @@ namespace RaceGame
         /// </summary>
         void CheckPitStop()
         {
+            if (PitstopPlays && timeout > 0)
+                timeout--;
+
             if (Base.currentGame.player1.vehicle.drawInfo.x <= PosX + Range && Base.currentGame.player1.vehicle.drawInfo.y <= PosY + Range && Base.currentGame.player1.vehicle.drawInfo.x >= PosX - Range && Base.currentGame.player1.vehicle.drawInfo.y >= PosY - Range && Base.currentGame.player1.vehicle.pitstopCounter < Base.windowHandle.TotalLaps)
             {
                 Base.currentGame.player1.vehicle.inPitstop = true;
+                if (timeout == 0)
+                {
+                    AudioFiles.RegenFuel.Play();
+                    timeout = 100;
+                    PitstopPlays = true;
+                }
             }
 
             else if(Base.currentGame.player1.vehicle.inPitstop)
@@ -39,6 +50,12 @@ namespace RaceGame
             if (Base.currentGame.player2.vehicle.drawInfo.x <= PosX + Range && Base.currentGame.player2.vehicle.drawInfo.y <= PosY + Range && Base.currentGame.player2.vehicle.drawInfo.x >= PosX - Range && Base.currentGame.player2.vehicle.drawInfo.y >= PosY - Range && Base.currentGame.player2.vehicle.pitstopCounter < Base.windowHandle.TotalLaps)
             {
                 Base.currentGame.player2.vehicle.inPitstop = true;
+                if (timeout == 0)
+                {
+                    AudioFiles.RegenFuel.Play();
+                    timeout = 100;
+                    PitstopPlays = true;
+                }
             }
 
             else if (Base.currentGame.player2.vehicle.inPitstop)
@@ -53,7 +70,6 @@ namespace RaceGame
                 Base.currentGame.player1.vehicle.inPitstop = true;
                 if (Base.currentGame.player1.vehicle.fuel < Base.currentGame.player1.vehicle.fuelCapacity)
                 {
-                    Console.WriteLine("refilling fuel; now :" + Base.currentGame.player1.vehicle.fuel);
                     Base.currentGame.player1.vehicle.fuel += 4;
                     if (Base.currentGame.player1.vehicle.fuel > Base.currentGame.player1.vehicle.fuelCapacity)
                     {
@@ -64,7 +80,6 @@ namespace RaceGame
                 if (Base.currentGame.player1.vehicle.health < Base.currentGame.player1.vehicle.maxHealth)
                 {
                     Base.currentGame.player1.vehicle.health += 1;
-                    Console.WriteLine("le health iz " + Base.currentGame.player1.vehicle.health);
                 }
             }
 
@@ -73,7 +88,6 @@ namespace RaceGame
                 Base.currentGame.player2.vehicle.inPitstop = true;
                 if (Base.currentGame.player2.vehicle.fuel < Base.currentGame.player2.vehicle.fuelCapacity)
                 {
-                    Console.WriteLine("refilling fuel; now :" + Base.currentGame.player2.vehicle.fuel);
                     Base.currentGame.player2.vehicle.fuel += 4;
                     if (Base.currentGame.player2.vehicle.fuel > Base.currentGame.player2.vehicle.fuelCapacity)
                     {

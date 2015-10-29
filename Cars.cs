@@ -30,6 +30,7 @@ namespace RaceGame
             ramDamage = 100;
             sideDamageMultiplier = 1.1f;
             grassMultiplier = 0.9f;
+            engineSound = AudioFiles.Tank;
         }
     }
 
@@ -55,12 +56,13 @@ namespace RaceGame
             ramDamage = 200;
             sideDamageMultiplier = 2f;
             grassMultiplier = 0.4f;
+            engineSound = AudioFiles.Winkelwagen;
         }
 
         public override void StartWeaponDraw() { weaponDrawInfo = new DrawInfo(Bitmaps.Vehicles.Transparent,0,0,16,16); }
         public override void MoveVehicle()
         {
-            //Console.WriteLine(throttle);
+            Random RND = new Random();
             if (throttle)
             {
                 fuel -= 0.04f;
@@ -204,8 +206,6 @@ namespace RaceGame
                     i = 0;
                 }
             }
-
-            //Console.WriteLine(speed);
 
             if (turning == "right")
             {
@@ -321,6 +321,7 @@ namespace RaceGame
 
             if (CanMove)
             {
+                AudioFiles.IsCrashing = true;
                 if (NextX > 0 && NextX < Base.currentGame.MapsizeX && NextY > 0 && NextY < Base.currentGame.MapsizeY)
                 {
                     drawInfo.x += (float)(Math.Cos(drawInfo.angle * (Math.PI / 180)) * speed);
@@ -331,6 +332,13 @@ namespace RaceGame
             {
                 speed = 0f;
                 i = 0;
+                if (AudioFiles.IsCrashing != true)
+                {
+                    if (RND.Next(0, 2) == 0)
+                        AudioFiles.AdvancedCrash.Play();
+                    else
+                        AudioFiles.SimpleCrash.Play();
+                }
             }
 
             deltaTime = 1;
@@ -362,6 +370,7 @@ namespace RaceGame
             ramDamage = 80;
             sideDamageMultiplier = 1.1f;
             grassMultiplier = 0.8f;
+            engineSound = AudioFiles.LAPVSound;
         }
     }
 
@@ -376,9 +385,9 @@ namespace RaceGame
             fuelCapacity = 140;
             fuel = fuelCapacity;
             maxSpeed = 4;
-            acceleration = 0.025f;
+            acceleration = 0.08f;
             deceleration = 0.05f;
-            turnSpeed = 2.6f;
+            turnSpeed = 3f;
             bitmap = Bitmaps.Vehicles.HorsePowerBody;
             vehicleSizeX = bitmap.Width;
             vehicleSizeY = bitmap.Height;
@@ -390,12 +399,13 @@ namespace RaceGame
             ramDamage = 40;
             sideDamageMultiplier = 1.5f;
             grassMultiplier = 0.6f;
+            engineSound = AudioFiles.HorseSound;
         }
 
         public override void StartWeaponDraw() { weaponDrawInfo = new DrawInfo(Bitmaps.Vehicles.Transparent, 0, 0, 16, 16); }
         public override void MoveVehicle()
         {
-            //Console.WriteLine(throttle);
+            Random RND = new Random();
             if (throttle)
             {
                 fuel -= 0.04f;
@@ -539,8 +549,6 @@ namespace RaceGame
                     i = 0;
                 }
             }
-
-            //Console.WriteLine(speed);
 
             if (turning == "right")
             {
@@ -655,14 +663,10 @@ namespace RaceGame
                     }
                 }
             }
-
-            if (Base.currentGame.Roads[(int)(drawInfo.x / 72), (int)(drawInfo.y / 72)].roadType == Pathfinding.RoadType.NULL)
-            {
-                speed *= 0.5f;
-            }
-
+            
             if (CanMove)
             {
+                AudioFiles.IsCrashing = true;
                 if (NextX > 0 && NextX < Base.currentGame.MapsizeX && NextY > 0 && NextY < Base.currentGame.MapsizeY)
                 {
                     drawInfo.x += (float)(Math.Cos(drawInfo.angle * (Math.PI / 180)) * speed);
@@ -673,6 +677,13 @@ namespace RaceGame
             {
                 speed = 0f;
                 i = 0;
+                if (AudioFiles.IsCrashing != true)
+                {
+                    if (RND.Next(0, 2) == 0)
+                        AudioFiles.AdvancedCrash.Play();
+                    else
+                        AudioFiles.SimpleCrash.Play();
+                }
             }
 
             weaponDrawInfo.x = drawInfo.x;
@@ -694,12 +705,12 @@ namespace RaceGame
             fuel = fuelCapacity;
             maxSpeed = 6f;
             acceleration = 0.07f;
-            deceleration = 0.04f;
-            turnSpeed = 5f;
+            deceleration = 0.02f;
+            turnSpeed = 7f;
             bitmap = Bitmaps.Vehicles.MotorfietsBody;
             vehicleSizeX = bitmap.Width;
             vehicleSizeY = bitmap.Height;
-            weapon = new LAPVWeapon(_player);
+            weapon = new MotorfietsWeapon(_player);
             relativeWeaponPos.X = 0;
             relativeWeaponPos.Y = 0;
             maxHealth = 60;
@@ -707,6 +718,7 @@ namespace RaceGame
             ramDamage = 30;
             sideDamageMultiplier = 2;
             grassMultiplier = 0.4f;
+            engineSound = AudioFiles.Motor;
         }
     }
 }
