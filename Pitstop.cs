@@ -1,20 +1,28 @@
-﻿using System.Collections.Generic;
-using System;
-using RaceGame;
+﻿using System;
 
 namespace RaceGame
 {
+    /// <summary>
+    /// Pitstop class die de pitstop code bevat
+    /// </summary>
     class Pitstop
     {
         int PosX = Base.currentGame.PitStopPoint.x;
         int PosY = Base.currentGame.PitStopPoint.y;
         int Range = 36;
 
+        /// <summary>
+        /// Dit is de constructor van de pitstop class. Hierin wordt de checkpitstop() method toegevoegd aan de gameloop
+        /// </summary>
         public Pitstop()
         {
             Base.gameTasks.Add(CheckPitStop);
         }
 
+        /// <summary>
+        /// In deze method wordt elke frame gecontroleerd of een speler in de pitstop staat. In de pitstop wordt de fuel en health bijgevuld
+        /// Ook wordt gedetecteerd wanneer deze de pitstop weer verlaat zodat er 1 bij de pitstopcounter kan opgeteld worden.
+        /// </summary>
         void CheckPitStop()
         {
             if (Base.currentGame.player1.vehicle.drawInfo.x <= PosX + Range && Base.currentGame.player1.vehicle.drawInfo.y <= PosY + Range && Base.currentGame.player1.vehicle.drawInfo.x >= PosX - Range && Base.currentGame.player1.vehicle.drawInfo.y >= PosY - Range && Base.currentGame.player1.vehicle.pitstopCounter < Base.windowHandle.TotalLaps)

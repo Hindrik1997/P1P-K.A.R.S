@@ -9,8 +9,15 @@ namespace RaceGame
     {
 
         protected List<Point> PitstopLocations = new List<Point>();
-        protected PitStopType pitstopType;
+        public PitStopType pitstopType;
 
+        /// <summary>
+        /// De hoofdfunctie van de pathfinding.
+        /// </summary>
+        /// <param name="a">Start positie als AstarObject</param>
+        /// <param name="b">Eind positie als AstarObject</param>
+        /// <param name="T"> Het type weg waarin hij moet zoeken</param>
+        /// <returns></returns>
         List<Point> FindRoadPath(Road a, Road b, RoadType T)
         {
             AstarObject[,] Set = new AstarObject[14, 9];
@@ -72,6 +79,11 @@ namespace RaceGame
             return new List<Point>();
 
         }
+
+        /// <summary>
+        /// Checkt de naastgelegen posities om de afstanden te bepalen.
+        /// Heeft een neighbourhoodtype nodig. Moore of Neumann neighbourhood.
+        /// </summary>
         List<AstarObject> GetNeighbours(AstarObject A, ref AstarObject[,] Set, NeighbourhoodType NType, int MapsizeX, int MapsizeY)
         {
             switch (NType)
@@ -130,6 +142,10 @@ namespace RaceGame
             }
             return null;
         }
+
+        /// <summary>
+        /// Om de afstand te bepalen tussen twee AstarObjects (Posities)
+        /// </summary>
         int GetDistance(AstarObject A, AstarObject B)
         {
             int dstX = Math.Abs(A.x - B.x);
@@ -140,6 +156,10 @@ namespace RaceGame
             return 14 * dstX + 10 * (dstY - dstX);
 
         }
+
+        /// <summary>
+        /// Gaat het gevonden pad na en reversed de lijst.
+        /// </summary>
         List<Point> RetracePath(AstarObject Start, AstarObject End)
         {
             List<Point> path = new List<Point>();
@@ -153,6 +173,9 @@ namespace RaceGame
             return path;
         }
 
+        /// <summary>
+        /// Regelt het detecteren van de juiste wegen op basis van het gevonden pad.
+        /// </summary>
         void SetRoadType(List<Point> Points)
         {
             //Create Road list
@@ -169,6 +192,9 @@ namespace RaceGame
             SpecialRoadList.Add(new SpecRoad { Current = _roads[_roads.Count - 1], Prev = _roads[_roads.Count - 2] });
         }
 
+        /// <summary>
+        /// Stelt de wegen ook echt in, van de method hierboven.
+        /// </summary>
         void SetSingleRoadType(Road Prev, Road Current, Road Next)
         {
             int X = Current.X;
@@ -289,6 +315,9 @@ namespace RaceGame
             }
         }
 
+        /// <summary>
+        ///  Regelt het instellen van de aansluitpunten tussen de paden. (bochten)
+        /// </summary>
         void SetSpecialRoadType(SpecRoad PrevR, SpecRoad NextR)
         {
 
@@ -420,6 +449,9 @@ namespace RaceGame
             }
         }
 
+        /// <summary>
+        /// Struct voor speciale wegen, namelijk deze op de aansluitpunten tussen twee paden.
+        /// </summary>
         struct SpecRoad
         {
             public Road Prev;
@@ -440,12 +472,18 @@ namespace RaceGame
             }
         }
 
-        protected enum PitStopType
+        /// <summary>
+        /// Soort pitstop, verticaal of horizontaal
+        /// </summary>
+        public enum PitStopType
         {
             Vertical,
             Horizontal
         }
 
+        /// <summary>
+        /// Creëert een semi-random set punten. Deze stellen de checkpoints voor. Hiertussen worden de wegen getekend.
+        /// </summary>
         Point[] GeneratePointSet()
         {
             Random RND = new Random();
@@ -531,11 +569,14 @@ namespace RaceGame
             return Return.ToArray();
         }
 
+        /// <summary>
+        /// Creëert random obstakels op de wegen.
+        /// </summary>
         void GenerateObstacles()
         {
             Random RND = new Random(DateTime.Now.Millisecond.GetHashCode());
             List<Obstacle> Obstacles = new List<Obstacle>();
-            for (int x = 0; x < MapsizeXR; ++x)
+            for (int x = 1; x < MapsizeXR; ++x) //0 omitten ivm finish positie
             {
                 for (int y = 0; y < MapsizeYR; ++y)
                 {
@@ -571,12 +612,18 @@ namespace RaceGame
                                 int rand = RND.Next(-32, 32);
                                 int rand2 = RND.Next(-32, 32);
 
+                                Bitmap B;
+                                if (RND.Next(0, 2) == 0)
+                                    B = Bitmaps.Obstacles.Stone;
+                                else
+                                    B = Bitmaps.Obstacles.Pylon;
+
                                 for (int x2 = 0; x2 < 16; ++x2)
                                 {
                                     for (int y2 = 0; y2 < 16; ++y2)
                                     {
-                                        if (Bitmaps.Obstacles.Stone.GetPixel(x2, y2).A == 255)
-                                            Background.SetPixel(xpos - 8 + x2 + rand, ypos - 8 + y2 + rand2, Bitmaps.Obstacles.Stone.GetPixel(x2, y2));
+                                        if (B.GetPixel(x2, y2).A == 255)
+                                            Background.SetPixel(xpos - 8 + x2 + rand, ypos - 8 + y2 + rand2, B.GetPixel(x2, y2));
                                     }
                                 }
                                 Obstacles.Add(new Obstacle(xpos + rand, ypos + rand2, 24));
@@ -588,6 +635,9 @@ namespace RaceGame
             ObstaclesList = Obstacles;
         }
 
+        /// <summary>
+        /// Obstakel struct voor hitdetection
+        /// </summary>
         public struct Obstacle
         {
             public int x;
@@ -601,6 +651,9 @@ namespace RaceGame
             }
         }
 
+        /// <summary>
+        /// Method die de spelers hun posities nagaat en de pijltjes erboven tekent.
+        /// </summary>
         void PLayerTrackers()
         {
             Bluepointer.x = player1.vehicle.drawInfo.x;

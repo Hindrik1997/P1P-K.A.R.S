@@ -2,6 +2,11 @@
 
 namespace RaceGame
 {
+    /// <summary>
+    /// Deze class bevat statische classes met bitmaps erin.
+    /// Zo hoeven we maar 1 malig een bitmap in te laden en in het geheugen te laden.
+    /// Dit scheelt een hele hoop geheugen.
+    /// </summary>
     public static class Bitmaps
     {
         public static class Vehicles
@@ -63,16 +68,21 @@ namespace RaceGame
             public static Bitmap OneBlueTwoGreenDown = new Bitmap("OneBlueTwoGreenDown.png");
             public static Bitmap OneBlueTwoGreenLeft = new Bitmap("OneBlueTwoGreenLeft.png");
 
-            public static Bitmap Finish = new Bitmap("finish.png");
+            public static Bitmap HorizontalFinish = new Bitmap("finish.png");
+            public static Bitmap VerticalFinish = new Bitmap("finish2.png");
 
             public static Bitmap Redpointer = new Bitmap("Redpointer.png");
             public static Bitmap Bluepointer = new Bitmap("Bluepointer.png");
+
+            public static Bitmap p1Win = new Bitmap("FINISH CUP P1.png");
+            public static Bitmap p2Win = new Bitmap("FINISH CUP P2.png");
         }
 
         public static class Obstacles
         {
             public static Bitmap Tree = new Bitmap("TreeTex.png");
             public static Bitmap Stone = new Bitmap("stone.png");
+            public static Bitmap Pylon = new Bitmap("pylon.png");
         }
 
         public class Bullets
@@ -81,7 +91,5 @@ namespace RaceGame
             public static Bitmap Vlam = new Bitmap("vlam.png");
             public static Bitmap RegularBullet = new Bitmap("regbullet.png");
         }
-
-
     }
 }

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using RaceGame.Structs;
 
 namespace RaceGame
 {
+    /// <summary>
+    /// Dit is de bullet class. Hier worden alle properties en functies van alle bullets opgeslagen
+    /// </summary>
     public class Bullet
     {
         public float angle;
@@ -14,13 +16,18 @@ namespace RaceGame
         public Player player;
         public DrawInfo bulletDrawInfo;
 
+        /// <summary>
+        /// Dit is de code voor het maken van de bullet
+        /// </summary>
         public Bullet(Bitmap bitmap, int x, int y, int width, int height, float _angle = 0, float RotateX = 0f, float RotateY = 0f, bool AutoRemove = false, int Frames = 0)
         {
             bulletDrawInfo = new DrawInfo(bitmap, x, y, width, height, _angle, RotateX, RotateY, AutoRemove, Frames);
             Base.drawInfos.Add(bulletDrawInfo);
 
         }
-
+        /// <summary>
+        /// Hierin wordt de afgeschoten kogel verplaatst in de richting. Ook wordt hier gekeken of de kogel collide met een voertuig. Deze staat in de GameTasks
+        /// </summary>
         public void TrackBullet()
         {
 
@@ -80,7 +87,9 @@ namespace RaceGame
             timeout--;
         }
     }
-
+/// <summary>
+/// Dit is de weapons class. Hier worden alle functies en properties van alle weapons bijgehouden. Veel van deze functies zijn de te overriden
+/// </summary>
     public abstract class Weapons
     {
         public string name;
@@ -105,7 +114,9 @@ namespace RaceGame
         {
             player = t;
         }
-
+        /// <summary>
+        /// Dit is de shoot functie. Zorgt er voor dat de kogel wordt gemaakt. Deze is virtual, en voor sommige wapens overriden we hem.
+        /// </summary>
         virtual public void shoot()
         {
             if (weaponReloading == 0)
@@ -121,7 +132,9 @@ namespace RaceGame
                 Base.gameTasks.Add(weaponReload);
             }
         }
-
+        /// <summary>
+        /// Deze functie zorgt er voor dat het wapen herlaad. Zo kan de speler neit oneindig snel kogels afvuren
+        /// </summary>
         public void weaponReload()
         {
             weaponReloading--;
@@ -131,7 +144,7 @@ namespace RaceGame
             }
         }
     }
-
+    //Deze en de volgende classes slaan de informatie op voor alle wapens
     public class TankWeapon : Weapons
     {
         public TankWeapon(Player s) : base(s)
@@ -143,25 +156,6 @@ namespace RaceGame
             turning = "false";
             BulletSprite = Bitmaps.Bullets.RoundBullet;
         }
-
-        /*
-        public override void shoot()
-        {
-            if (weaponReloading == 0)
-            {
-                Bitmap koegmap = new Bitmap("kannonbal.png");
-
-                Bullets.Add(new Bullet(koegmap, (int)player.vehicle.drawInfo.x, (int)player.vehicle.drawInfo.y, 10, 10, player.vehicle.weaponDrawInfo.angle, 0f, 0f));
-                i = Bullets.Count - 1;
-                Bullets[i].speed = 30;
-                Bullets[i].timeout = 300;
-                Bullets[i].player = player;
-                Bullets[i].damage = damage;
-                Base.gameTasks.Add(Bullets[i].TrackBullet);
-                weaponReloading = fireRate;
-                Base.gameTasks.Add(weaponReload);
-            }
-        }*/
     }
 
     public class LAPVWeapon : Weapons
@@ -191,7 +185,7 @@ namespace RaceGame
 
         public override void shoot()
         {
-            if (weaponReloading == 0) //IK heb grote ballen
+            if (weaponReloading == 0) 
             {
                 Bullets.Add(new Bullet(weaponSprite, (int)player.vehicle.drawInfo.x, (int)player.vehicle.drawInfo.y, 30, 90, player.vehicle.weaponDrawInfo.angle, 0f, 0f, true, timeout));
                 i = Bullets.Count - 1;
@@ -211,7 +205,7 @@ namespace RaceGame
         public MotorfietsWeapon(Player s) : base(s)
         {
             weaponSprite = Bitmaps.Vehicles.MotorfietsWeapon;
-            damage = 10;
+            damage = 3;
             fireRate = 20;
             turnSpeed = 4;
             weaponSprite = Bitmaps.Bullets.RoundBullet;

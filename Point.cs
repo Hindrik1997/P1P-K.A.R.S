@@ -2,6 +2,9 @@
 
 namespace RaceGame
 {
+    /// <summary>
+    /// Een class om posities in vast te houden. Kan impliciet omgezet worden met een System.Drawing.Point
+    /// </summary>
     public class Point
     {
         public int x;

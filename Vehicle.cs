@@ -1,13 +1,14 @@
-﻿using RaceGame.Structs;
-using RaceGame.Enums;
+﻿using RaceGame.Enums;
 using System.Drawing;
 using System;
-using System.Windows.Forms;
 
 namespace RaceGame
 {
+    /// <summary>
+    /// Dit is de vehicle class. Deze houd de properties en methods van de voertuigen van beide spelers bij
+    /// </summary>
     public abstract class Vehicle
-    {
+    {        
         public DrawInfo drawInfo;
         public DrawInfo weaponDrawInfo;
 
@@ -54,7 +55,9 @@ namespace RaceGame
         public bool throttle = false;
         public bool brake = false;
 
-
+        /// <summary>
+        /// Dit is de constructor van de vehicle class. 
+        /// </summary>
         public Vehicle(int x, int y,VehicleType t, Player t2)
         {
             vehicletype = t;
@@ -64,7 +67,7 @@ namespace RaceGame
             Base.gameTasks.Add(CheckShooting);
             Base.gameTasks.Add(CheckCollision);
         }
-        #region Drawing and stopping drawingappelnoot
+        #region stopstartdraw
         public void StartDraw(int x, int y)
         {
             drawInfo = new DrawInfo(bitmap, x,y,50,50, 0f,0f,0f);
@@ -73,44 +76,56 @@ namespace RaceGame
         
         public void StartDraw()
         {
-            drawInfo = new DrawInfo(bitmap, StartPositionX, StartPositionY, vehicleSizeX, vehicleSizeY, 0f,0f,0f);
-            Base.drawInfos.Add(drawInfo);
+            if (Base.currentGame.pitstopType == Game.PitStopType.Horizontal)
+            {
+                drawInfo = new DrawInfo(bitmap, StartPositionX, StartPositionY, vehicleSizeX, vehicleSizeY, 0f, 0f, 0f);
+                Base.drawInfos.Add(drawInfo);
+            }
+            else
+            {
+                drawInfo = new DrawInfo(bitmap, StartPositionX, StartPositionY, vehicleSizeX, vehicleSizeY, 90f, 0f, 0f);
+                Base.drawInfos.Add(drawInfo);
+            }
         }
 
         public virtual void StartWeaponDraw()
         {
-            weaponDrawInfo = new DrawInfo(weapon.weaponSprite, StartPositionX, StartPositionY, weapon.weaponSizeX, weapon.weaponSizeY, 0f, 0f, drawInfo.angle);
-            Base.drawInfos.Add(weaponDrawInfo);
+            if (Base.currentGame.pitstopType == Game.PitStopType.Horizontal)
+            {
+                weaponDrawInfo = new DrawInfo(weapon.weaponSprite, StartPositionX, StartPositionY, weapon.weaponSizeX, weapon.weaponSizeY, 0f, 0f, drawInfo.angle);
+                Base.drawInfos.Add(weaponDrawInfo);
+            }
+            else
+            {
+                weaponDrawInfo = new DrawInfo(weapon.weaponSprite, StartPositionX, StartPositionY, weapon.weaponSizeX, weapon.weaponSizeY, 90f, 0f, drawInfo.angle);
+                Base.drawInfos.Add(weaponDrawInfo);
+            }
         }
 
-        /*
-
-        public void StartDraw(DrawInfo _drawInfo)
-        {
-            bitmap = new Bitmap(Application.StartupPath + path);
-            Base.drawInfos.Add(_drawInfo);
-        }*/
         public void StopDraw()
         {
             Base.drawInfos.Remove(drawInfo);
         }
         #endregion
 
-        #region Movement
-        public virtual void Shoot() { }
-        #endregion
-
-        public virtual void Appelnoot()
+        /// <summary>
+        /// Dit is een van de belangrijkste en grootste methods in ons spel. Dit regelt het bewegen van de voortuigen. 
+        /// Hier zit ook een heleboel wiskunde in. Deze methods is te overriden indien nodig
+        /// </summary>
+        public virtual void MoveVehicle()
         {
-            //Console.WriteLine(throttle);
             if (throttle)
             {
                 fuel -= 0.04f;
+                if (fuel <= 0)
+                {
+                    fuel = 0;
+                }
                 if (Math.Abs(0 - speed) <= 0.01)
                 {
                     go = true;
                 }
-                if (speed > 0 || go)
+                if ((speed > 0 || go)&&fuel!=0)
                 {
                     if (Math.Abs((((-(float)Math.Pow(acceleration * (i / 2) - Math.Sqrt(maxSpeed), 2)) + maxSpeed) * prevDelta) - prevSpeed) <= .5 || go)
                     {
@@ -378,6 +393,12 @@ namespace RaceGame
                     }
                 }
             }
+
+            if (Base.currentGame.Roads[(int)(drawInfo.x / 72), (int)(drawInfo.y / 72)].roadType == Pathfinding.RoadType.NULL)
+            {
+                speed *= 0.5f;
+            }
+
             if (CanMove)
             {
                 if (NextX > 0 && NextX < Base.currentGame.MapsizeX && NextY > 0 && NextY < Base.currentGame.MapsizeY)
@@ -402,6 +423,9 @@ namespace RaceGame
             //   }
         }
 
+        /// <summary>
+        /// Deze method zorgt er voor dat de shoot() method wordt gecallt als een bool true is
+        /// </summary>
         public void CheckShooting()
         {
             if (shooting)
@@ -410,15 +434,19 @@ namespace RaceGame
             }
         }
 
+        /// <summary>
+        /// Dit berekent de afstand tussen 2 punten met de stelling van Pythagoras
+        /// </summary>
         protected int GetDistance(int x, int y, int x2, int y2)
         {
             return (int)Math.Sqrt(Math.Pow(Math.Abs(x - x2), 2) + Math.Pow(Math.Abs(y - y2), 2));
         }
 
+        /// <summary>
+        /// Dit is de method die collisiondetection regelt
+        /// </summary>
         public void CheckCollision()
         {
-            
-            //  Point topleft=(drawInfo.x+16
             float width = 20;
             float length = 32;
             float temgle = (float)(drawInfo.angle - (Math.Atan(((width / 2) / (length / 2))) * (180 / Math.PI)));
@@ -466,24 +494,6 @@ namespace RaceGame
                     throttle = false;
                 }
             }
-            /*
-            for (int b = 0; b < Base.currentGame.ObstaclesList.Count; b++)
-            {
-                if (Math.Abs(Base.currentGame.ObstaclesList[b].x - topleft.X) < Base.currentGame.ObstaclesList[b].range && Math.Abs(Base.currentGame.ObstaclesList[b].y - topleft.Y) < Base.currentGame.ObstaclesList[b].range || Math.Abs(Base.currentGame.ObstaclesList[b].x - topright.X) < Base.currentGame.ObstaclesList[b].range && Math.Abs(Base.currentGame.ObstaclesList[b].y - topright.Y) < Base.currentGame.ObstaclesList[b].range
-                    || Math.Abs(Base.currentGame.ObstaclesList[b].x - backleft.X) < Base.currentGame.ObstaclesList[b].range && Math.Abs(Base.currentGame.ObstaclesList[b].y - backleft.Y) < Base.currentGame.ObstaclesList[b].range || Math.Abs(Base.currentGame.ObstaclesList[b].x - backright.X) < Base.currentGame.ObstaclesList[b].range && Math.Abs(Base.currentGame.ObstaclesList[b].y - backright.Y) < Base.currentGame.ObstaclesList[b].range
-                   )
-                {
-                    //drawInfo.angle += 180;
-                   // weaponDrawInfo.angle += 180;
-                    speed *=-1;
-                    //throttle = false;
-                    //drawInfo.x -= (float)(Math.Cos((drawInfo.angle) * (Math.PI / 180)) * 15);
-                    //drawInfo.y -= (float)(Math.Cos((90 - (drawInfo.angle)) * (Math.PI / 180)) *15);
-                    //i = 0;
-                    //go = true;
-                }
-            }
-            */
         }
     }
 }

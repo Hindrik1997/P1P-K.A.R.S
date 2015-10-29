@@ -5,6 +5,10 @@ using System.Drawing;
 
 namespace RaceGame
 {
+    /// <summary>
+    /// Deze class managed de huidige game.
+    /// Deze class is partial!
+    /// </summary>
     public partial class Game
     {
         public Player player1;
@@ -38,9 +42,12 @@ namespace RaceGame
         int FillPercentage = 50;
         int Iterations = 3;
 
+        public int LastCheckPointP1 = 0;
+        public int LastCheckPointP2 = 0;
 
         public Game(Enums.VehicleType player1Vehicle, Enums.VehicleType player2Vehicle)
         {
+            Base.currentGame = this;
             GameField = new byte[MapsizeX, MapsizeY];
             random = new Random(DateTime.UtcNow.GetHashCode());
             CreateMap();
@@ -50,6 +57,7 @@ namespace RaceGame
             Base.drawInfos.Add(Bluepointer);
             Base.drawInfos.Add(Redpointer);
             Base.gameTasks.Add(PLayerTrackers);
+            Base.gameTasks.Add(WinCheck);
         }
 
         public void Escape()
@@ -69,8 +77,8 @@ namespace RaceGame
             player2.CreateVehicle(player2Vehicle, SpawnPointP2);
             player2.vehicle.StartDraw();
             player2.vehicle.StartWeaponDraw();
-            Base.gameTasks.Add(player1.vehicle.Appelnoot);
-            Base.gameTasks.Add(player2.vehicle.Appelnoot);
+            Base.gameTasks.Add(player1.vehicle.MoveVehicle);
+            Base.gameTasks.Add(player2.vehicle.MoveVehicle);
         }
 
         public void CreateMap()
@@ -313,6 +321,7 @@ namespace RaceGame
                 {
                     CheckPointsPassedP1[i] = true;
                     ValuesChanged = true;
+                    LastCheckPointP1 = i;
                 }
                 else
                 {
@@ -320,6 +329,7 @@ namespace RaceGame
                     {
                         CheckPointsPassedP2[i] = true;
                         ValuesChanged = true;
+                        LastCheckPointP2 = i;
                     }
                     else
                     {
@@ -519,18 +529,38 @@ namespace RaceGame
 
         void Finish()
         {
-            int Cx = CheckPoints[0].x * 72 + 54;
-            int Cy = CheckPoints[0].y * 72;
-
-            SpawnPointP1 = new Point(Cx - 32, Cy + 36);
-            SpawnPointP2 = new Point(Cx - 32, Cy - 36);
-
-            for (int x = 0; x < 18; ++x)
+            if (pitstopType == PitStopType.Horizontal)
             {
-                for (int y = 0; y < 72; ++y)
+                int Cx = CheckPoints[0].x * 72 + 54;
+                int Cy = CheckPoints[0].y * 72;
+
+                SpawnPointP1 = new Point(Cx - 26, Cy + 18 + 36);
+                SpawnPointP2 = new Point(Cx - 26, Cy - 18 + 36);
+
+                for (int x = 0; x < 18; ++x)
                 {
-                    if (Bitmaps.Other.Finish.GetPixel(x, y).A != 0)
-                        Background.SetPixel(Cx + x + 18, Cy + y, Bitmaps.Other.Finish.GetPixel(x, y));
+                    for (int y = 0; y < 72; ++y)
+                    {
+                        if (Bitmaps.Other.HorizontalFinish.GetPixel(x, y).A != 0)
+                            Background.SetPixel(Cx + x + 18, Cy + y, Bitmaps.Other.HorizontalFinish.GetPixel(x, y));
+                    }
+                }
+            }
+            else
+            {
+                int Cx = CheckPoints[0].x * 72 - 18;
+                int Cy = CheckPoints[0].y * 72 + 76;
+
+                SpawnPointP1 = new Point(Cx - 18 + 54, Cy - 36);
+                SpawnPointP2 = new Point(Cx + 18 + 54, Cy - 36);
+
+                for (int x = 0; x < 72; ++x)
+                {
+                    for (int y = 0; y < 18; ++y)
+                    {
+                        if (Bitmaps.Other.VerticalFinish.GetPixel(x, y).A != 0)
+                            Background.SetPixel(Cx + x + 18, Cy + y, Bitmaps.Other.VerticalFinish.GetPixel(x, y));
+                    }
                 }
             }
         }
@@ -576,6 +606,86 @@ namespace RaceGame
                 }
             }
         }
+
+        static protected int GetDistance(int x, int y, int x2, int y2)
+        {
+            return (int)Math.Sqrt(Math.Pow(Math.Abs(x - x2), 2) + Math.Pow(Math.Abs(y - y2), 2));
+        }
+
+        public void CheckHealth()
+        {
+            if (Base.currentGame.player1.vehicle.health <= 0)
+            {
+                if (GetDistance((int)Base.currentGame.player2.vehicle.drawInfo.x, (int)Base.currentGame.player2.vehicle.drawInfo.y, Base.currentGame.CheckPoints[Base.currentGame.LastCheckPointP1].x * 72 + 36, Base.currentGame.CheckPoints[Base.currentGame.LastCheckPointP1].y * 72 + 36)<72)
+                {
+                    if (Base.currentGame.LastCheckPointP1 != 0)
+                    {
+                        Base.currentGame.player1.vehicle.drawInfo.x = Base.currentGame.CheckPoints[Base.currentGame.LastCheckPointP1 - 1].x * 72 + 36;
+                        Base.currentGame.player1.vehicle.drawInfo.y = Base.currentGame.CheckPoints[Base.currentGame.LastCheckPointP1 - 1].y * 72 + 36;
+                    }
+                    else
+                    {
+                        Base.currentGame.player1.vehicle.drawInfo.x = Base.currentGame.CheckPoints[Base.currentGame.CheckPoints.Length - 1].x * 72 + 36;
+                        Base.currentGame.player1.vehicle.drawInfo.y = Base.currentGame.CheckPoints[Base.currentGame.CheckPoints.Length - 1].y * 72 + 36;
+                    }
+                }
+                else
+                {
+                    Base.currentGame.player1.vehicle.drawInfo.x = Base.currentGame.CheckPoints[Base.currentGame.LastCheckPointP1].x * 72 + 36;
+                    Base.currentGame.player1.vehicle.drawInfo.y = Base.currentGame.CheckPoints[Base.currentGame.LastCheckPointP1].y * 72 + 36;
+                }
+                Base.currentGame.player1.vehicle.health = Base.currentGame.player1.vehicle.maxHealth;
+            }
+            if (Base.currentGame.player2.vehicle.health <= 0)
+            {
+                if (GetDistance((int)Base.currentGame.player1.vehicle.drawInfo.x, (int)Base.currentGame.player1.vehicle.drawInfo.y, Base.currentGame.CheckPoints[Base.currentGame.LastCheckPointP2].x * 72 + 36, Base.currentGame.CheckPoints[Base.currentGame.LastCheckPointP2].y * 72 + 36) < 72)
+                {
+                    if (Base.currentGame.LastCheckPointP2 != 0)
+                    {
+                        Base.currentGame.player2.vehicle.drawInfo.x = Base.currentGame.CheckPoints[Base.currentGame.LastCheckPointP2 - 1].x * 72 + 36;
+                        Base.currentGame.player2.vehicle.drawInfo.y = Base.currentGame.CheckPoints[Base.currentGame.LastCheckPointP2 - 1].y * 72 + 36;
+                    }
+                    else
+                    {
+                        Base.currentGame.player2.vehicle.drawInfo.x = Base.currentGame.CheckPoints[Base.currentGame.CheckPoints.Length - 1].x * 72 + 36;
+                        Base.currentGame.player2.vehicle.drawInfo.y = Base.currentGame.CheckPoints[Base.currentGame.CheckPoints.Length - 1].y * 72 + 36;
+                    }
+                }
+                else
+                {
+                    Base.currentGame.player2.vehicle.drawInfo.x = Base.currentGame.CheckPoints[Base.currentGame.LastCheckPointP2].x * 72 + 36;
+                    Base.currentGame.player2.vehicle.drawInfo.y = Base.currentGame.CheckPoints[Base.currentGame.LastCheckPointP2].y * 72 + 36;
+                }
+                Base.currentGame.player2.vehicle.health = Base.currentGame.player1.vehicle.maxHealth;
+            }
+        }
+
+        public void WinCheck()
+        {
+            if (player1.vehicle.fuel == 0 || player2.LapCounter == Base.windowHandle.TotalLaps)
+            {
+                //Player2 wins
+                Base.drawInfos.Add(new DrawInfo(Bitmaps.Other.p2Win, Bitmaps.Other.p1Win.Width / 2, Bitmaps.Other.p1Win.Height / 2, Bitmaps.Other.p1Win.Width, Bitmaps.Other.p1Win.Height, -90));
+                Base.windowHandle.disableInput = true;
+                Base.currentGame.player1.vehicle.throttle = false;
+                Base.currentGame.player1.vehicle.speed = 0;
+                Base.currentGame.player2.vehicle.throttle = false;
+                Base.currentGame.player2.vehicle.speed = 0;
+            }
+
+            if (player2.vehicle.fuel == 0 || player1.LapCounter == Base.windowHandle.TotalLaps)
+            {
+                //Player1 wins
+                Base.drawInfos.Add(new DrawInfo(Bitmaps.Other.p1Win, Bitmaps.Other.p2Win.Width / 2, Bitmaps.Other.p2Win.Height / 2, Bitmaps.Other.p2Win.Width, Bitmaps.Other.p2Win.Height, -90));
+                Base.windowHandle.disableInput = true;
+                Base.currentGame.player1.vehicle.throttle = false;
+                Base.currentGame.player1.vehicle.speed = 0;
+                Base.currentGame.player2.vehicle.throttle = false;
+                Base.currentGame.player2.vehicle.speed = 0;
+            }
+
+        }
+
 
     }
 }

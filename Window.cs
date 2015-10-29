@@ -55,10 +55,15 @@ namespace RaceGame
         public ProgressBar Player2Speed;
         public Game currentGame;
         public bool showMenu = true;
+        public bool disableInput = true;
         public int TotalLaps = 5;
         Enums.VehicleType player1Vehicle;
         Enums.VehicleType player2Vehicle;
 
+        /// <summary>
+        /// Initialiseert de window. Override de standaard WM_PAINT message van de messageloop, 
+        /// en start het drawproces van de game.
+        /// </summary>
         public Window()
         {
             InitializeComponent();
@@ -67,19 +72,19 @@ namespace RaceGame
             Base.drawInfos = DrawInfos;
             Base.gameTasks = GameTasks;
 
-            CreateGame();
             SetStyle(ControlStyles.UserPaint | ControlStyles.AllPaintingInWmPaint | ControlStyles.DoubleBuffer, true);
             GameTimer = new Timer();
-            GameTimer.Interval = 16;
+            GameTimer.Interval = 10;
             GameTimer.Tick += new EventHandler(GameTimer_Tick);
             GameTimer.Start();
             Load += new EventHandler(CreateBackBuffer);
             Paint += new PaintEventHandler(PaintBackbuffer);
-            Base.currentGame.player1.vehicle.throttle = false;
-            Base.currentGame.player2.vehicle.throttle = false;
             toggleVisibility();
         }
 
+        /// <summary>
+        /// Regelt de zichtbaarheid van het hoofdmenu
+        /// </summary>
         void toggleVisibility()
         {
             if (showMenu)
@@ -150,6 +155,9 @@ namespace RaceGame
             }
         }
 
+        /// <summary>
+        /// Initializer van de Form Controls.
+        /// </summary>
         private void InitializeComponent()
         {
             this.textBox1 = new System.Windows.Forms.TextBox();
@@ -589,7 +597,7 @@ namespace RaceGame
             // Player1Fuel
             // 
             this.Player1Fuel.BackColor = System.Drawing.Color.Red;
-            this.Player1Fuel.ForeColor = System.Drawing.Color.Lime;
+            this.Player1Fuel.ForeColor = System.Drawing.Color.Gold;
             this.Player1Fuel.Location = new System.Drawing.Point(60, 680);
             this.Player1Fuel.Name = "Player1Fuel";
             this.Player1Fuel.Size = new System.Drawing.Size(300, 13);
@@ -622,7 +630,7 @@ namespace RaceGame
             // Player2Fuel
             // 
             this.Player2Fuel.BackColor = System.Drawing.Color.Red;
-            this.Player2Fuel.ForeColor = System.Drawing.Color.Lime;
+            this.Player2Fuel.ForeColor = System.Drawing.Color.Yellow;
             this.Player2Fuel.Location = new System.Drawing.Point(563, 680);
             this.Player2Fuel.Name = "Player2Fuel";
             this.Player2Fuel.Size = new System.Drawing.Size(300, 13);
@@ -702,6 +710,11 @@ namespace RaceGame
             this.PerformLayout();
 
         }
+
+        /// <summary>
+        /// Event dat uitgevoerd wordt als de GameTimer een tick maakt.
+        /// Voert de delegates inde GameTasks lijst uit, hierna wordt Draw() gecalled om alles op het scherm te tekenen.
+        /// </summary>
         void GameTimer_Tick(object sender, EventArgs e)
         {
             //Alle game tasks invoken
@@ -711,6 +724,10 @@ namespace RaceGame
             }
             Draw();
         }
+        /// <summary>
+        /// De werkelijke draw loop. Samen in combi met de GameTimer_Tick() de gehele gameloop.  Door gebruik van een lijst van delegates en lijst van 'DrawInfo's' hoef je hier als programmeur totaal niet aan te denken.
+        /// Voorkomt ook dat de gameloop vol wordt gestouwd met code. Deze vult de Backbuffer met informatie die in het volgende frame moeten.
+        /// </summary>
         void Draw()
         {
             if (BackBuffer != null)
@@ -740,11 +757,14 @@ namespace RaceGame
                             }
                         }
                     }
-                    //buffer.DrawLines(new Pen(Color.White,10f), Base.currentGame.Points);
                 }
                 Invalidate();
             }
         }
+        /// <summary>
+        /// Creëert de backbuffer en regelt het disposen ervan. Aangezien het een COM element is en teruggeven moet worden aan de Garbage Collector.
+        /// Wordt gecallt wanneer het Form opent.
+        /// </summary>
         void CreateBackBuffer(object sender, EventArgs e)
         {
             if (BackBuffer != null)
@@ -753,6 +773,9 @@ namespace RaceGame
             }
             BackBuffer = new Bitmap(ClientSize.Width, ClientSize.Height);
         }
+        /// <summary>
+        /// Override van het WM_PAINT message, en swapped de backbuffer met wat er op het scherm staat.
+        /// </summary>
         void PaintBackbuffer(object sender, PaintEventArgs e)
         {
             if (BackBuffer != null)
@@ -761,6 +784,9 @@ namespace RaceGame
             }
         }
 
+        /// <summary>
+        /// Reset en creëert een nieuwe game.
+        /// </summary>
         void CreateGame()
         {
             Base.currentGame = null;
@@ -770,136 +796,145 @@ namespace RaceGame
             currentGame = Base.currentGame;
         }
 
-        //Input
-
+        /// <summary>
+        /// Deze eventhandler verzorgt de input wanneer een toets ingedrukt wordt.
+        /// </summary>
         protected override void OnKeyDown(System.Windows.Forms.KeyEventArgs e)
         {
-            //CheckKeysDown();
-            e.Handled = true;
-            e.SuppressKeyPress = true;
-            switch (e.KeyCode)
+            if (!disableInput)
             {
-                case Keys.W:
-                    Base.currentGame.player1.vehicle.throttle = true;
-                    break;
-                case Keys.S:
-                    Base.currentGame.player1.vehicle.brake = true;
-                    break;
-                case Keys.A:
-                    Base.currentGame.player1.vehicle.turning = "left";
-                    break;
-                case Keys.D:
-                    Base.currentGame.player1.vehicle.turning = "right";
-                    break;
+                //CheckKeysDown();
+                e.Handled = true;
+                e.SuppressKeyPress = true;
+                switch (e.KeyCode)
+                {
+                    case Keys.W:
+                        Base.currentGame.player1.vehicle.throttle = true;
+                        break;
+                    case Keys.S:
+                        Base.currentGame.player1.vehicle.brake = true;
+                        break;
+                    case Keys.A:
+                        Base.currentGame.player1.vehicle.turning = "left";
+                        break;
+                    case Keys.D:
+                        Base.currentGame.player1.vehicle.turning = "right";
+                        break;
 
-                case Keys.Q:
-                    if (Base.currentGame.player1.vehicle.weapon != null)
-                        Base.currentGame.player1.vehicle.weapon.turning = "left";
-                    break;
-                case Keys.E:
-                    if(Base.currentGame.player1.vehicle.weapon != null)
-                    Base.currentGame.player1.vehicle.weapon.turning = "right";
-                    break;
-                case Keys.D2:
-                    if (Base.currentGame.player1.vehicle.weapon != null)
-                        Base.currentGame.player1.vehicle.shooting = true;
-                    break;
+                    case Keys.Q:
+                        if (Base.currentGame.player1.vehicle.weapon != null)
+                            Base.currentGame.player1.vehicle.weapon.turning = "left";
+                        break;
+                    case Keys.E:
+                        if (Base.currentGame.player1.vehicle.weapon != null)
+                            Base.currentGame.player1.vehicle.weapon.turning = "right";
+                        break;
+                    case Keys.D2:
+                        if (Base.currentGame.player1.vehicle.weapon != null)
+                            Base.currentGame.player1.vehicle.shooting = true;
+                        break;
 
 
-                //P2
-                case Keys.NumPad8:
-                    Base.currentGame.player2.vehicle.throttle = true;
-                    break;
-                case Keys.NumPad5:
-                    Base.currentGame.player2.vehicle.brake = true;
-                    break;
-                case Keys.NumPad4:
-                    Base.currentGame.player2.vehicle.turning = "left";
-                    break;
-                case Keys.NumPad6:
-                    Base.currentGame.player2.vehicle.turning = "right";
-                    break;
+                    //P2
+                    case Keys.NumPad8:
+                        Base.currentGame.player2.vehicle.throttle = true;
+                        break;
+                    case Keys.NumPad5:
+                        Base.currentGame.player2.vehicle.brake = true;
+                        break;
+                    case Keys.NumPad4:
+                        Base.currentGame.player2.vehicle.turning = "left";
+                        break;
+                    case Keys.NumPad6:
+                        Base.currentGame.player2.vehicle.turning = "right";
+                        break;
 
-                case Keys.NumPad7:
-                    if (Base.currentGame.player2.vehicle.weapon != null)
-                        Base.currentGame.player2.vehicle.weapon.turning = "left";
-                    break;
-                case Keys.NumPad9:
-                    if (Base.currentGame.player2.vehicle.weapon != null)
-                        Base.currentGame.player2.vehicle.weapon.turning = "right";
-                    break;
-                case Keys.Divide:
-                    if (Base.currentGame.player2.vehicle.weapon != null)
-                        Base.currentGame.player2.vehicle.shooting = true;
-                    break;
+                    case Keys.NumPad7:
+                        if (Base.currentGame.player2.vehicle.weapon != null)
+                            Base.currentGame.player2.vehicle.weapon.turning = "left";
+                        break;
+                    case Keys.NumPad9:
+                        if (Base.currentGame.player2.vehicle.weapon != null)
+                            Base.currentGame.player2.vehicle.weapon.turning = "right";
+                        break;
+                    case Keys.Divide:
+                        if (Base.currentGame.player2.vehicle.weapon != null)
+                            Base.currentGame.player2.vehicle.shooting = true;
+                        break;
+                }
             }
-
-
         }
+        /// <summary>
+        /// Deze eventhandler wordt uitgevoerd wanneer een toets wordt losgelaten.
+        /// </summary>
         protected override void OnKeyUp(System.Windows.Forms.KeyEventArgs e)
         {
+            if (!disableInput) { 
             e.Handled = true;
             e.SuppressKeyPress = true;
-            switch (e.KeyCode)
-            {
-                case Keys.W:
-                    Base.currentGame.player1.vehicle.throttle = false;
-                    break;
-                case Keys.S:
-                    Base.currentGame.player1.vehicle.brake = false;
-                    break;
-                case Keys.A:
-                    Base.currentGame.player1.vehicle.turning = "false";
-                    break;
-                case Keys.D:
-                    Base.currentGame.player1.vehicle.turning = "false";
-                    break;
+                switch (e.KeyCode)
+                {
+                    case Keys.W:
+                        Base.currentGame.player1.vehicle.throttle = false;
+                        break;
+                    case Keys.S:
+                        Base.currentGame.player1.vehicle.brake = false;
+                        break;
+                    case Keys.A:
+                        Base.currentGame.player1.vehicle.turning = "false";
+                        break;
+                    case Keys.D:
+                        Base.currentGame.player1.vehicle.turning = "false";
+                        break;
 
-                case Keys.Q:
-                    if (Base.currentGame.player1.vehicle.weapon != null)
-                        Base.currentGame.player1.vehicle.weapon.turning = "false";
-                    break;
-                case Keys.E:
-                    if (Base.currentGame.player1.vehicle.weapon != null)
-                        Base.currentGame.player1.vehicle.weapon.turning = "false";
-                    break;
-                case Keys.D2:
-                    if (Base.currentGame.player1.vehicle.weapon != null)
-                        Base.currentGame.player1.vehicle.shooting = false;
-                    break;
+                    case Keys.Q:
+                        if (Base.currentGame.player1.vehicle.weapon != null)
+                            Base.currentGame.player1.vehicle.weapon.turning = "false";
+                        break;
+                    case Keys.E:
+                        if (Base.currentGame.player1.vehicle.weapon != null)
+                            Base.currentGame.player1.vehicle.weapon.turning = "false";
+                        break;
+                    case Keys.D2:
+                        if (Base.currentGame.player1.vehicle.weapon != null)
+                            Base.currentGame.player1.vehicle.shooting = false;
+                        break;
 
 
-                //P2
-                case Keys.NumPad8:
-                    Base.currentGame.player2.vehicle.throttle = false;
-                    break;
-                case Keys.NumPad5:
-                    Base.currentGame.player2.vehicle.brake = false;
-                    break;
-                case Keys.NumPad4:
-                    Base.currentGame.player2.vehicle.turning = "false";
-                    break;
-                case Keys.NumPad6:
-                    Base.currentGame.player2.vehicle.turning = "false";
-                    break;
+                    //P2
+                    case Keys.NumPad8:
+                        Base.currentGame.player2.vehicle.throttle = false;
+                        break;
+                    case Keys.NumPad5:
+                        Base.currentGame.player2.vehicle.brake = false;
+                        break;
+                    case Keys.NumPad4:
+                        Base.currentGame.player2.vehicle.turning = "false";
+                        break;
+                    case Keys.NumPad6:
+                        Base.currentGame.player2.vehicle.turning = "false";
+                        break;
 
-                case Keys.NumPad7:
-                    if (Base.currentGame.player2.vehicle.weapon != null)
-                        Base.currentGame.player2.vehicle.weapon.turning = "false";
-                    break;
-                case Keys.NumPad9:
-                    if (Base.currentGame.player2.vehicle.weapon != null)
-                        Base.currentGame.player2.vehicle.weapon.turning = "false";
-                    break;
-                case Keys.Divide:
-                    if (Base.currentGame.player2.vehicle.weapon != null)
-                        Base.currentGame.player2.vehicle.shooting = false;
-                    break;
+                    case Keys.NumPad7:
+                        if (Base.currentGame.player2.vehicle.weapon != null)
+                            Base.currentGame.player2.vehicle.weapon.turning = "false";
+                        break;
+                    case Keys.NumPad9:
+                        if (Base.currentGame.player2.vehicle.weapon != null)
+                            Base.currentGame.player2.vehicle.weapon.turning = "false";
+                        break;
+                    case Keys.Divide:
+                        if (Base.currentGame.player2.vehicle.weapon != null)
+                            Base.currentGame.player2.vehicle.shooting = false;
+                        break;
+                }
             }
         }
 
-       
-
+        /// <summary>
+        /// Bevat de code voor de radiobuttons om hun keuzes te bevestigen.
+        /// </summary>
+        #region RadioButtons
         private void Tank1_CheckedChanged(object sender, EventArgs e)
         {
             player1Vehicle = Enums.VehicleType.Tank;
@@ -949,10 +984,15 @@ namespace RaceGame
         {
             player2Vehicle = Enums.VehicleType.Motorfiets;
         }
+        #endregion
 
+        /// <summary>
+        /// Deze method initialiseert een game met de gekozen voertuigen voor elke speler.
+        /// </summary>
         private void startgame_Click(object sender, EventArgs e)
         {
             showMenu = false;
+            disableInput = false;
             toggleVisibility();
             Base.currentGame = null;
             Base.gameTasks = null;
@@ -965,13 +1005,15 @@ namespace RaceGame
             Pitstop P = new Pitstop();
             Progressbars.Initialize();
             Base.gameTasks.Add(Progressbars.Check);
+            Base.gameTasks.Add(Base.currentGame.CheckHealth);
         }
 
+        /// <summary>
+        /// Check de numericUpDown en stelt het aantal laps in.
+        /// </summary>
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
         {
             TotalLaps = (int)(numericUpDown1.Value);
         }
-
-        //xx anoniem
     }
 }

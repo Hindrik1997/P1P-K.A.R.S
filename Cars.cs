@@ -4,6 +4,10 @@ using System.Drawing;
 
 namespace RaceGame
 {
+
+    /// <summary>
+    /// De tank class inclusief zijn overrides van Vehicle.
+    /// </summary>
     public class Tank : Vehicle
     {
         public Tank(int x, int y, Player _player) : base(x,y, VehicleType.Tank, _player)
@@ -29,6 +33,9 @@ namespace RaceGame
         }
     }
 
+    /// <summary>
+    /// De Winkelkar/Jackass class die de juiste properties voor de Vehicle class insteld.
+    /// </summary>
     public class Jackass : Vehicle
     {
         public Jackass(int x, int y, Player _player) : base(x,y,VehicleType.Jackass, _player)
@@ -51,7 +58,7 @@ namespace RaceGame
         }
 
         public override void StartWeaponDraw() { weaponDrawInfo = new DrawInfo(Bitmaps.Vehicles.Transparent,0,0,16,16); }
-        public override void Appelnoot()
+        public override void MoveVehicle()
         {
             //Console.WriteLine(throttle);
             if (throttle)
@@ -202,7 +209,7 @@ namespace RaceGame
 
             if (turning == "right")
             {
-                if (vehicletype != VehicleType.Tank)
+                if (vehicletype != VehicleType.Tank || vehicletype != VehicleType.Jackass)
                 {
                     if (speed > 3)
                     {
@@ -223,7 +230,7 @@ namespace RaceGame
             }
             else if (turning == "left")
             {
-                if (vehicletype != VehicleType.Tank)
+                if (vehicletype != VehicleType.Tank || vehicletype != VehicleType.Jackass)
                 {
                     if (speed > 3)
                     {
@@ -307,6 +314,11 @@ namespace RaceGame
                     }
                 }
             }
+            if (Base.currentGame.Roads[(int)(drawInfo.x / 72), (int)(drawInfo.y / 72)].roadType == Pathfinding.RoadType.NULL)
+            {
+                speed *= 0.5f;
+            }
+
             if (CanMove)
             {
                 if (NextX > 0 && NextX < Base.currentGame.MapsizeX && NextY > 0 && NextY < Base.currentGame.MapsizeY)
@@ -322,14 +334,13 @@ namespace RaceGame
             }
 
             deltaTime = 1;
-            // if (orig.GetPixel((int)BallPos.X - BallSizeW / 2, (int)BallPos.Y - BallSizeH / 2).G != 0)
-            // {
-            //     deltaTime = grassMultiplier;
-            //   }
         }
 
     }
 
+    /// <summary>
+    /// De LAPV class die de juiste properties voor de Vehicle class insteld.
+    /// </summary>
     public class LAPV : Vehicle
     {
         public LAPV(int x, int y, Player _player) : base(x, y, VehicleType.LAPV, _player)
@@ -354,6 +365,10 @@ namespace RaceGame
         }
     }
 
+    /// <summary>
+    /// De HorsePower class die de juiste properties voor de Vehicle class insteld.
+    /// Bevat overrides van StartWeaponDraw() en MoveVehicle()
+    /// </summary>
     public class HorsePower : Vehicle
     {
         public HorsePower(int x, int y, Player _player) : base(x, y, VehicleType.HorsePower, _player)
@@ -378,7 +393,7 @@ namespace RaceGame
         }
 
         public override void StartWeaponDraw() { weaponDrawInfo = new DrawInfo(Bitmaps.Vehicles.Transparent, 0, 0, 16, 16); }
-        public override void Appelnoot()
+        public override void MoveVehicle()
         {
             //Console.WriteLine(throttle);
             if (throttle)
@@ -529,7 +544,7 @@ namespace RaceGame
 
             if (turning == "right")
             {
-                if (vehicletype != VehicleType.Tank)
+                if (vehicletype != VehicleType.Tank || vehicletype != VehicleType.Jackass)
                 {
                     if (speed > 3)
                     {
@@ -553,7 +568,7 @@ namespace RaceGame
             }
             else if (turning == "left")
             {
-                if (vehicletype != VehicleType.Tank)
+                if (vehicletype != VehicleType.Tank || vehicletype != VehicleType.Jackass)
                 {
                     if (speed > 3)
                     {
@@ -640,6 +655,12 @@ namespace RaceGame
                     }
                 }
             }
+
+            if (Base.currentGame.Roads[(int)(drawInfo.x / 72), (int)(drawInfo.y / 72)].roadType == Pathfinding.RoadType.NULL)
+            {
+                speed *= 0.5f;
+            }
+
             if (CanMove)
             {
                 if (NextX > 0 && NextX < Base.currentGame.MapsizeX && NextY > 0 && NextY < Base.currentGame.MapsizeY)
@@ -658,23 +679,23 @@ namespace RaceGame
             weaponDrawInfo.y = drawInfo.y;
 
             deltaTime = 1;
-            // if (orig.GetPixel((int)BallPos.X - BallSizeW / 2, (int)BallPos.Y - BallSizeH / 2).G != 0)
-            // {
-            //     deltaTime = grassMultiplier;
-            //   }
+            weaponDrawInfo.angle = drawInfo.angle;
         }
     }
 
+    /// <summary>
+    /// De Motorfiets class die de juiste properties voor de Vehicle class insteld.
+    /// </summary>
     public class Motorfiets : Vehicle
     {
         public Motorfiets(int x, int y, Player _player) : base(x, y, VehicleType.Motorfiets, _player)
         {
             fuelCapacity = 70;
             fuel = fuelCapacity;
-            maxSpeed = 1.1f;
-            acceleration = 0.035f;
-            deceleration = 0.07f;
-            turnSpeed = 3.4f;
+            maxSpeed = 6f;
+            acceleration = 0.07f;
+            deceleration = 0.04f;
+            turnSpeed = 5f;
             bitmap = Bitmaps.Vehicles.MotorfietsBody;
             vehicleSizeX = bitmap.Width;
             vehicleSizeY = bitmap.Height;

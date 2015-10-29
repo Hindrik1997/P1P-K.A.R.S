@@ -1,11 +1,15 @@
 ﻿using System.Windows.Forms;
-using RaceGame.Structs;
+using RaceGame.Classes;
 using RaceGame.Delegates;
 using System.Collections.Generic;
 using System;
 
 namespace RaceGame
 {
+    /// <summary>
+    /// Dit is de basisclass and het aangrijppunt van het programma. 
+    /// Hier worden de eerste basishandelingen uitgevoerd. Ook verzorgt dit gemakkelijke toegang tot de belangrijkste gameclasses
+    /// </summary>
     public static class Base
     {
         public static Window windowHandle;
